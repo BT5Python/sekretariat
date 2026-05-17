@@ -33,7 +33,38 @@ footer{margin-top:16px;display:flex;justify-content:space-between;align-items:ce
 .running-text span{display:inline-block;padding-left:100%;color:#ff3333;font-weight:700;animation:marquee 12s linear infinite;letter-spacing:1px}
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
 #progressBarContainer{width:100%;background:rgba(255,255,255,0.05);height:10px;border-radius:20px;overflow:hidden;margin-top:14px;display:none}
-#progressBar{height:100%;width:0%;background:#00ff00;transition:0.3s}
+#progressBar{height:100%;width:0%;background:#00ff00;transition:0.3s}  
+.code-private {
+  color: #ff0000; !important;
+  font-weight: bold;
+  animation: blinkFast 0.5s infinite;
+  -webkit-animation: blinkFast 0.5s infinite;
+}
+
+@keyframes blinkFast {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+  @-webkit-keyframes blinkFast {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+  .bottom-right {
+  position: fixed;
+  right: 100px;
+  bottom: 110px;
+  color: #00ff00;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  animation: blinkFast 0.8s infinite;
+  text-shadow: 0 0 5px red;
+  opacity: 0.9;
+  z-index: 9999; /* 🔥 INI YANG KURANG */
+}
+  body {
+  position: relative;
+}
 </style>
 </head>
 <body>
@@ -46,11 +77,13 @@ footer{margin-top:16px;display:flex;justify-content:space-between;align-items:ce
     </div>
 
     <header>
-      <div class="logo"><b>UP</b></div>
+      <div class="logo"><b style="color:#ffff00;">ISU</b></div>
       <div>
-        <h2 style="color:#00ff00; margin:4px 0 0 0; font-weight:600;">INTEGRATION SYSTEM UPLOAD</h2>
+        <h2 style="color:#00ff00; margin:4px 0 0 0; font-weight:600;">INTEGRATED SYSTEM UPLOAD</h2>
         <h1>SEKRETARIAT PUSLAT KODIKLATAU</h1>        
-        <p class="small">code : _PRIVATE</p>
+        <p style="font-size:12px;color:#ffff00">
+        DATE/TIME : <span class="code-private" id="tanggal"></span>
+        </p>
       </div>
    </header>
 
@@ -94,7 +127,7 @@ footer{margin-top:16px;display:flex;justify-content:space-between;align-items:ce
 </div>
 
 <script>
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycby-XlaYEwtzWWCoqq5birUSexokceiWGnZLMnFCigW9Zk-6f1X-t5LbrhWYfxR7VcLB/exec"; // ganti
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzl7AhbTKDMMZjcO_xrktmPQsRU6-PjObd0YzAoOFrDT3uOhAhWpyqnn0qF_xYHd61hdQ/exec"; // ganti
 
 let files = [];
 const drop = document.getElementById("drop");
@@ -131,6 +164,17 @@ drop.addEventListener("drop", e=>{ [...e.dataTransfer.files].forEach(f=>files.pu
 function toBase64(file){ return new Promise((resolve,reject)=>{ const reader=new FileReader(); reader.readAsDataURL(file); reader.onload=()=>resolve(reader.result); reader.onerror=err=>reject(err); }); }
 
 uploadBtn.addEventListener("click", async ()=>{
+  // INPUT FOLDER TUJUAN
+  const folderTujuan = prompt(
+    "Masukkan folder tujuan:\n\nContoh:\nBIDLATKL/BIDLATMATRA/BIDLATUM/DISOPSLAT/DISLOG/DISPERS/PROGAR"
+  );
+  // batal
+  if(folderTujuan === null) return;
+  // kosong
+  if(folderTujuan.trim() === ""){
+    alert("Folder tujuan kosong!");
+    return;
+  }
   if(files.length===0){ alert("Belum ada file."); return; }
   barContainer.style.display="block";
   for(let i=0;i<files.length;i++){
@@ -140,6 +184,8 @@ uploadBtn.addEventListener("click", async ()=>{
     form.append("name",file.name);
     form.append("type",file.type);
     form.append("file",base64.split(',')[1]);
+    // SUBFOLDER TUJUAN
+    form.append("folder", folderTujuan);    
     try{
       const res=await fetch(WEBAPP_URL,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:form});
       const result=await res.json();
@@ -208,6 +254,33 @@ function heartbeat(){
 
 setInterval(heartbeat, 2000);
 </script>
+  <script>
+function tampilkanTanggal() {
+  const now = new Date();
 
+  const hari = String(now.getDate()).padStart(2, '0');
+  const bulan = String(now.getMonth() + 1).padStart(2, '0');
+  const tahun = now.getFullYear();
+
+  const jam = String(now.getHours()).padStart(2, '0');
+  const menit = String(now.getMinutes()).padStart(2, '0');
+  const detik = String(now.getSeconds()).padStart(2, '0');
+
+  const format = `${hari}-${bulan}-${tahun} ${jam}:${menit}:${detik}`;
+
+  document.getElementById("tanggal").textContent = format;
+}
+
+// update tiap detik biar live
+setInterval(tampilkanTanggal, 1000);
+tampilkanTanggal();
+</script>
 </body>
 </html>
+
+
+
+
+
+
+
